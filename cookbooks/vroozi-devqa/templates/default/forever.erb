@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# description: Forever Start Stop Restart
+# processname: forever
+# chkconfig: 234 20 80
+
+APPS="shopper login message-center purchasing-manager"
+
+start_service()
+{
+	for APP in $APPS
+	do
+		cd <%= node['nodejs']['deploy_directory'] %>/$APP
+		echo "starting application - $APP"
+		sh ./startup.sh
+	done
+}
+
+stop_service()
+{
+	/usr/bin/forever stopall
+}
+
+case $1 in
+start)
+	start_service	
+;;
+stop)
+	stop_service
+;;
+restart)
+	stop_service
+	start_service
+;;
+esac
+exit 0

@@ -1,0 +1,69 @@
+user <%= node['nginx']['user'] %>;
+worker_processes <%= node['nginx']['worker_processes'] %>;
+
+error_log  <%= node['nginx']['error_log_path'] %> <%= node['nginx']['log_level']%>;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+<% if node['nginx']['log_format'] == 'main' -%>
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+          '$status $body_bytes_sent "$http_referer" '
+          '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+
+<% elsif node['nginx']['log_format'] == 'logstash' -%>
+    log_format logstash '$http_host '
+        '$http_x_forwarded_for [$time_local] '
+        '"$request" $status $body_bytes_sent '
+        '"$http_referer" "$http_user_agent" '
+        '$request_time '
+        '$upstream_response_time';
+
+    access_log <%= node['nginx']['access_log_path'] %> logstash;
+#   access_log syslog:server=unix:/dev/log,faility=loal7,tag=nginx,severity=info main;
+  <% end -%>
+
+ 
+
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+    
+    fastcgi_buffers 16 16k; 
+    fastcgi_buffer_size 64k;  
+    gzip  on;
+    gzip_http_version 1.1;
+    gzip_disable "MSIE [1-6]\.(?!.*SV1)";
+    
+    gzip_comp_level 9;
+    gzip_min_length 1100;
+    gzip_buffers 16 8k;
+    gzip_proxied any;
+    gzip_types
+    text/plain
+    text/css
+    text/js
+    text/xml
+    text/javascript
+    application/javascript
+    application/x-javascript
+    application/json
+    application/xml
+    application/xml+rss;
+
+
+    include /etc/nginx/conf.d/*.conf;
+}

@@ -1,0 +1,27 @@
+upstream storagenode {
+    server <%= node['nginx']['upstream_ip'] %>:<%= node['nginx']['upstream_port_storagenode'] %>;
+}
+
+
+server {
+    listen      <%= node['nginx']['https_port'] %>;
+    server_name  storage-<%= node['vroozi']['domain_name'] %>.vroozi.com;
+    
+    ssl on;
+    ssl_certificate <%= node['nginx']['ssl_certificate_filepath'] %>;
+    ssl_certificate_key <%= node['nginx']['ssl_certificatekey_filepath'] %>;
+
+    ssl_session_timeout 5m;
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+
+    location / {
+        proxy_pass http://storagenode;
+    }
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+}

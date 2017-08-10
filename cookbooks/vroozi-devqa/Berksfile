@@ -1,0 +1,8 @@
+source 'https://supermarket.chef.io'
+
+metadata
+
+
+#cookbook "aws"
+#cookbook "tomcat"
+#cookbook "java_se"

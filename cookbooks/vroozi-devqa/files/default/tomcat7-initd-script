@@ -1,0 +1,35 @@
+#!/bin/bash
+# description: Tomcat Start Stop Restart
+# processname: tomcat
+# chkconfig: 234 20 80
+JAVA_HOME=/opt/jdk8
+export JAVA_HOME
+PATH=$JAVA_HOME/bin:$PATH
+export PATH
+CATALINA_HOME=/usr/share/tomcat7
+
+case $1 in
+start)
+sh $CATALINA_HOME/bin/startup.sh
+;;
+stop)
+sh $CATALINA_HOME/bin/shutdown.sh
+kill -9 $(ps aux | grep 'tomcat'|grep java | awk '{print $2}')
+;;
+restart)
+sh $CATALINA_HOME/bin/shutdown.sh
+kill -9 $(ps aux | grep 'tomcat'|grep java | awk '{print $2}')
+sh $CATALINA_HOME/bin/startup.sh
+;;
+status)
+RES=`ps -ef | grep $TOMCAT/bin/tomcat-juli.jar | grep -v grep > /dev/null`
+CMD_STATUS=$?
+if [ $CMD_STATUS == 0 ]
+then
+    echo "Tomcat 7 is running"
+else
+    echo "Tomcat7 is stopped"
+fi
+;;
+esac
+exit 0
